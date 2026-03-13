@@ -1,0 +1,7 @@
+# Git
+*.tmp
+# OS
+.DS_Store
+Thumbs.db
+# Archive (optional - uncomment to exclude)
+# archive/
