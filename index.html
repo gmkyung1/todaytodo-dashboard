@@ -1,0 +1,733 @@
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily Dashboard Premium - 2026.03.13</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Color Palette - Premium Dark */
+            --bg-deep: #08090d;
+            --bg-main: #0f1117;
+            --card-glass: rgba(26, 29, 39, 0.7);
+            --card-border: rgba(255, 255, 255, 0.08);
+            --accent: #6c63ff;
+            --accent-gradient: linear-gradient(135deg, #6c63ff 0%, #a06eff 100%);
+            --success: #4ade80;
+            --warning: #fbbf24;
+            --danger: #f87171;
+            --text-main: #f8fafc;
+            --text-sub: #94a3b8;
+            --glass-blur: blur(12px);
+            --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-deep);
+            background-image: 
+                radial-gradient(circle at 0% 0%, rgba(108, 99, 255, 0.1) 0%, transparent 40%),
+                radial-gradient(circle at 100% 100%, rgba(160, 110, 255, 0.05) 0%, transparent 40%);
+            color: var(--text-main);
+            min-height: 100vh;
+            padding: 40px 20px;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3, .brand {
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .container {
+            max-width: 1300px;
+            margin: 0 auto;
+        }
+
+        /* --- Header Section --- */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-bottom: 40px;
+            animation: fadeInDown 0.8s ease-out;
+        }
+
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .date-info h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            background: linear-gradient(to right, #fff, #94a3b8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .date-info p {
+            color: var(--text-sub);
+            font-size: 1.1rem;
+            font-weight: 400;
+        }
+
+        .clock-card {
+            background: var(--card-glass);
+            backdrop-filter: var(--glass-blur);
+            border: 1px solid var(--card-border);
+            padding: 15px 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            text-align: right;
+        }
+
+        #live-clock {
+            font-size: 1.8rem;
+            font-weight: 700;
+            font-family: 'Outfit', sans-serif;
+            color: var(--accent);
+            letter-spacing: 2px;
+        }
+
+        /* --- Progress Bar --- */
+        .overall-progress {
+            margin-bottom: 40px;
+            animation: fadeIn 1s ease-out;
+        }
+
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+            color: var(--text-sub);
+        }
+
+        .progress-bar-bg {
+            height: 12px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 999px;
+            overflow: hidden;
+            border: 1px solid var(--card-border);
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            width: 0%;
+            background: var(--accent-gradient);
+            box-shadow: 0 0 20px rgba(108, 99, 255, 0.4);
+            border-radius: 999px;
+            transition: width 1s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        /* --- Grid Layout --- */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 24px;
+        }
+
+        .glass-card {
+            background: var(--card-glass);
+            backdrop-filter: var(--glass-blur);
+            border: 1px solid var(--card-border);
+            border-radius: 24px;
+            padding: 28px;
+            transition: var(--transition-smooth);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .glass-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(108, 99, 255, 0.3);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .card-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .card-icon {
+            width: 36px;
+            height: 36px;
+            background: rgba(108, 99, 255, 0.1);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--accent);
+            font-size: 1.2rem;
+        }
+
+        /* --- Sections Positioning --- */
+        .section-todo { grid-column: span 8; }
+        .section-inprogress { grid-column: span 4; }
+        .section-done { grid-column: span 4; }
+        .section-checklist { grid-column: span 4; }
+        .section-memo { grid-column: span 4; }
+        .section-summary { grid-column: span 12; }
+
+        @media (max-width: 1024px) {
+            .section-todo, .section-inprogress, .section-done, .section-checklist, .section-memo {
+                grid-column: span 6;
+            }
+        }
+
+        @media (max-width: 768px) {
+            header { flex-direction: column; align-items: flex-start; gap: 20px; }
+            .clock-card { width: 100%; text-align: left; }
+            .section-todo, .section-inprogress, .section-done, .section-checklist, .section-memo, .section-summary {
+                grid-column: span 12;
+            }
+        }
+
+        /* --- Todo List Styles --- */
+        .todo-input-wrap {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        input, select, textarea {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            color: #fff;
+            padding: 12px 16px;
+            font-family: inherit;
+            outline: none;
+            transition: var(--transition-smooth);
+        }
+
+        input:focus, select:focus, textarea:focus {
+            border-color: var(--accent);
+            background: rgba(108, 99, 255, 0.05);
+        }
+
+        .btn-primary {
+            background: var(--accent-gradient);
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            padding: 12px 24px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary:hover {
+            transform: scale(1.02);
+            box-shadow: 0 5px 15px rgba(108, 99, 255, 0.4);
+        }
+
+        .todo-list {
+            list-style: none;
+        }
+
+        .todo-item {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 16px;
+            border-radius: 16px;
+            background: rgba(255,255,255,0.02);
+            margin-bottom: 12px;
+            border: 1px solid transparent;
+            transition: var(--transition-smooth);
+            animation: slideIn 0.4s ease-out backwards;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-10px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .todo-item:hover {
+            background: rgba(255,255,255,0.04);
+            border-color: var(--card-border);
+        }
+
+        .checkbox-custom {
+            width: 24px;
+            height: 24px;
+            border: 2px solid var(--card-border);
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition-smooth);
+        }
+
+        .todo-item.completed .checkbox-custom {
+            background: var(--success);
+            border-color: var(--success);
+        }
+
+        .checkbox-custom::after {
+            content: '✓';
+            color: #000;
+            font-weight: 900;
+            display: none;
+        }
+
+        .todo-item.completed .checkbox-custom::after {
+            display: block;
+        }
+
+        .todo-text {
+            flex: 1;
+            font-size: 1rem;
+            transition: var(--transition-smooth);
+        }
+
+        .todo-item.completed .todo-text {
+            opacity: 0.5;
+            text-decoration: line-through;
+        }
+
+        .badge {
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .badge-high { background: rgba(248, 113, 113, 0.15); color: var(--danger); }
+        .badge-mid { background: rgba(251, 191, 36, 0.15); color: var(--warning); }
+        .badge-low { background: rgba(74, 222, 128, 0.15); color: var(--success); }
+
+        /* --- Checklist --- */
+        .check-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 0;
+            cursor: pointer;
+            color: var(--text-sub);
+            transition: var(--transition-smooth);
+        }
+
+        .check-item:hover { color: var(--text-main); }
+
+        .check-item.active {
+            color: var(--success);
+        }
+
+        /* --- Memo Area --- */
+        .memo-textarea {
+            width: 100%;
+            height: 180px;
+            resize: none;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .save-indicator {
+            font-size: 0.8rem;
+            color: var(--text-sub);
+            margin-top: 10px;
+            text-align: right;
+            height: 20px;
+        }
+
+        /* --- Footer Summary --- */
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+        }
+
+        .stat-card {
+            text-align: center;
+            padding: 20px;
+            background: rgba(255,255,255,0.02);
+            border-radius: 16px;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            font-family: 'Outfit';
+            color: var(--accent);
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: var(--text-sub);
+            margin-top: 5px;
+        }
+
+        /* Floating particles effect */
+        .particles {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .particle {
+            position: absolute;
+            background: var(--accent);
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.05;
+        }
+    </style>
+</head>
+<body>
+    <div class="particles">
+        <div class="particle" style="width: 400px; height: 400px; top: -100px; left: -100px;"></div>
+        <div class="particle" style="width: 300px; height: 300px; bottom: -50px; right: -50px;"></div>
+    </div>
+
+    <div class="container">
+        <header>
+            <div class="date-info">
+                <h1>2026년 3월 13일</h1>
+                <p id="current-day">금요일 · 오늘의 작업 현황</p>
+            </div>
+            <div class="clock-card">
+                <div id="live-clock">14:39:40</div>
+                <p style="font-size: 0.7rem; color: var(--text-sub); text-transform: uppercase;">Real-time Engine</p>
+            </div>
+        </header>
+
+        <div class="overall-progress">
+            <div class="progress-label">
+                <span>일일 진행률</span>
+                <span id="progress-percent-text">0%</span>
+            </div>
+            <div class="progress-bar-bg">
+                <div class="progress-bar-fill" id="main-progress-bar"></div>
+            </div>
+        </div>
+
+        <main class="dashboard-grid">
+            <!-- 오늘의 할 일 -->
+            <section class="glass-card section-todo">
+                <div class="card-header">
+                    <div class="card-title">
+                        <div class="card-icon">📋</div>
+                        오늘의 할 일
+                    </div>
+                </div>
+
+                <div class="todo-input-wrap">
+                    <input type="text" id="todo-input" placeholder="새로운 할 일을 입력하세요..." style="flex: 1;">
+                    <select id="priority-input">
+                        <option value="high">🔴 높음</option>
+                        <option value="mid" selected>🟡 중간</option>
+                        <option value="low">🟢 낮음</option>
+                    </select>
+                    <button class="btn-primary" id="add-btn">
+                        <span>+</span> 추가
+                    </button>
+                </div>
+
+                <ul class="todo-list" id="todo-list">
+                    <!-- Items injected via JS -->
+                </ul>
+            </section>
+
+            <!-- 진행 중인 작업 -->
+            <section class="glass-card section-inprogress">
+                <div class="card-header">
+                    <div class="card-title">
+                        <div class="card-icon">⚡</div>
+                        진행 중
+                    </div>
+                </div>
+                <div id="inprogress-list">
+                    <!-- Items -->
+                    <p style="color: var(--text-sub); text-align: center; padding: 20px;">진행 중인 작업이 없습니다.</p>
+                </div>
+            </section>
+
+            <!-- 점검 체크리스트 -->
+            <section class="glass-card section-checklist">
+                <div class="card-header">
+                    <div class="card-title">
+                        <div class="card-icon">🔍</div>
+                        데일리 체크
+                    </div>
+                </div>
+                <div class="checklist" id="checklist-root">
+                    <!-- Checklist items -->
+                </div>
+            </section>
+
+            <!-- 완료 -->
+            <section class="glass-card section-done">
+                <div class="card-header">
+                    <div class="card-title">
+                        <div class="card-icon">✅</div>
+                        완료됨
+                    </div>
+                </div>
+                <div id="done-list" style="opacity: 0.6;">
+                    <!-- Done items -->
+                </div>
+            </section>
+
+            <!-- 메모 -->
+            <section class="glass-card section-memo">
+                <div class="card-header">
+                    <div class="card-title">
+                        <div class="card-icon">📝</div>
+                        퀵 메모
+                    </div>
+                </div>
+                <textarea class="memo-textarea" id="memo-input" placeholder="생각나는 아이디어나 중요한 내용을 메모하세요..."></textarea>
+                <div class="save-indicator" id="save-msg"></div>
+            </section>
+
+            <!-- 통계 요약 -->
+            <section class="glass-card section-summary">
+                <div class="card-header">
+                    <div class="card-title">
+                        <div class="card-icon">📊</div>
+                        일일 마감 요약
+                    </div>
+                </div>
+                <div class="stat-grid">
+                    <div class="stat-card">
+                        <div class="stat-value" id="stat-total">0</div>
+                        <div class="stat-label">전체 할 일</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="stat-done" style="color: var(--success);">0</div>
+                        <div class="stat-label">완료됨</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="stat-rem" style="color: var(--warning);">0</div>
+                        <div class="stat-label">남은 작업</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="stat-rate" style="color: #fff;">0%</div>
+                        <div class="stat-label">완료율</div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        // Data Keys
+        const DATE_ID = '20260313';
+        const STORAGE_KEYS = {
+            TASKS: `dashboard_${DATE_ID}_tasks`,
+            CHECKLIST: `dashboard_${DATE_ID}_checklist`,
+            MEMO: `dashboard_${DATE_ID}_memo`
+        };
+
+        // State Management
+        let state = {
+            tasks: JSON.parse(localStorage.getItem(STORAGE_KEYS.TASKS) || '[]'),
+            checklist: JSON.parse(localStorage.getItem(STORAGE_KEYS.CHECKLIST) || 'null'),
+            memo: localStorage.getItem(STORAGE_KEYS.MEMO) || ''
+        };
+
+        const CHECKLIST_DEVICES = [
+            '이메일/메시지 확인',
+            '오늘 일정 검토',
+            '어제 미완료 항목 이월 확인',
+            '중요 공지사항 확인',
+            'EOD(퇴근 전) 보고서 작성'
+        ];
+
+        if (!state.checklist) {
+            state.checklist = CHECKLIST_DEVICES.map(text => ({ text, checked: false }));
+        }
+
+        // --- Functions ---
+        
+        function updateClock() {
+            const now = new Date();
+            document.getElementById('live-clock').innerText = now.toLocaleTimeString('en-GB');
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        function renderAll() {
+            renderTasks();
+            renderChecklist();
+            renderStats();
+            updateProgress();
+            
+            // Sync with Storage
+            localStorage.setItem(STORAGE_KEYS.TASKS, JSON.stringify(state.tasks));
+            localStorage.setItem(STORAGE_KEYS.CHECKLIST, JSON.stringify(state.checklist));
+        }
+
+        function renderTasks() {
+            const listRoot = document.getElementById('todo-list');
+            const inProgressRoot = document.getElementById('inprogress-list');
+            const doneRoot = document.getElementById('done-list');
+
+            listRoot.innerHTML = '';
+            inProgressRoot.innerHTML = '';
+            doneRoot.innerHTML = '';
+
+            const activeTasks = state.tasks.filter(t => !t.completed);
+            const doneTasks = state.tasks.filter(t => t.completed);
+
+            if (state.tasks.length === 0) {
+                listRoot.innerHTML = '<p style="color: var(--text-sub); text-align: center; padding: 20px;">할 일이 없습니다.</p>';
+            }
+
+            state.tasks.forEach((task, index) => {
+                const li = document.createElement('li');
+                li.className = `todo-item ${task.completed ? 'completed' : ''}`;
+                li.innerHTML = `
+                    <div class="checkbox-custom" onclick="toggleTask(${index})"></div>
+                    <div class="todo-text">${task.text}</div>
+                    <span class="badge badge-${task.priority}">${task.priority}</span>
+                    <button onclick="removeTask(${index})" style="background:none; border:none; color:var(--text-sub); cursor:pointer; font-size:1.2rem; margin-left:10px;">×</button>
+                `;
+
+                if (task.completed) {
+                    doneRoot.appendChild(li.cloneNode(true));
+                } else {
+                    listRoot.appendChild(li);
+                    
+                    // Simple logic: non-completed are "in progress"
+                    const ipItem = document.createElement('div');
+                    ipItem.style.cssText = 'padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 0.9rem;';
+                    ipItem.innerHTML = `• ${task.text}`;
+                    inProgressRoot.appendChild(ipItem);
+                }
+            });
+
+            if (activeTasks.length === 0) {
+                inProgressRoot.innerHTML = '<p style="color: var(--text-sub); text-align: center; padding: 20px;">모든 작업을 완료했습니다! 🎈</p>';
+            }
+            if (doneTasks.length === 0) {
+                doneRoot.innerHTML = '<p style="color: var(--text-sub); text-align: center; padding: 20px;">완료된 작업이 없습니다.</p>';
+            }
+        }
+
+        function renderChecklist() {
+            const root = document.getElementById('checklist-root');
+            root.innerHTML = '';
+            state.checklist.forEach((item, index) => {
+                const div = document.createElement('div');
+                div.className = `check-item ${item.checked ? 'active' : ''}`;
+                div.innerHTML = `
+                    <span style="font-size: 1.2rem;">${item.checked ? '⦿' : '○'}</span>
+                    <span>${item.text}</span>
+                `;
+                div.onclick = () => {
+                    state.checklist[index].checked = !state.checklist[index].checked;
+                    renderAll();
+                };
+                root.appendChild(div);
+            });
+        }
+
+        function renderStats() {
+            const total = state.tasks.length;
+            const done = state.tasks.filter(t => t.completed).length;
+            const rate = total === 0 ? 0 : Math.round((done / total) * 100);
+
+            document.getElementById('stat-total').innerText = total;
+            document.getElementById('stat-done').innerText = done;
+            document.getElementById('stat-rem').innerText = total - done;
+            document.getElementById('stat-rate').innerText = rate + '%';
+        }
+
+        function updateProgress() {
+            const total = state.tasks.length;
+            const done = state.tasks.filter(t => t.completed).length;
+            const rate = total === 0 ? 0 : Math.round((done / total) * 100);
+
+            const bar = document.getElementById('main-progress-bar');
+            bar.style.width = rate + '%';
+            document.getElementById('progress-percent-text').innerText = rate + '%';
+        }
+
+        // Actions
+        window.addTask = () => {
+            const input = document.getElementById('todo-input');
+            const pri = document.getElementById('priority-input').value;
+            if (!input.value.trim()) return;
+
+            state.tasks.unshift({
+                text: input.value.trim(),
+                priority: pri,
+                completed: false,
+                createdAt: new Date()
+            });
+            input.value = '';
+            renderAll();
+        };
+
+        window.toggleTask = (index) => {
+            state.tasks[index].completed = !state.tasks[index].completed;
+            renderAll();
+        };
+
+        window.removeTask = (index) => {
+            state.tasks.splice(index, 1);
+            renderAll();
+        };
+
+        // Event Listeners
+        document.getElementById('add-btn').onclick = addTask;
+        document.getElementById('todo-input').onkeypress = (e) => {
+            if (e.key === 'Enter') addTask();
+        };
+
+        // Memo Persistence
+        const memoArea = document.getElementById('memo-input');
+        const saveMsg = document.getElementById('save-msg');
+        memoArea.value = state.memo;
+
+        let debounceTimer;
+        memoArea.oninput = () => {
+            saveMsg.innerText = '저장 중...';
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(() => {
+                localStorage.setItem(STORAGE_KEYS.MEMO, memoArea.value);
+                saveMsg.innerText = '✓ 저장됨';
+                setTimeout(() => saveMsg.innerText = '', 2000);
+            }, 800);
+        };
+
+        // Init
+        renderAll();
+
+    </script>
+</body>
+</html>
+Pressing key...Getting DOM...Stopping...
+
+Stop Agent
